@@ -1,12 +1,23 @@
-// Copyright 2015 Apsalar Inc. All rights reserved.
-// This code is hereby placed in the public domain
+// Copyright (c) 2015 Apsalar Inc. All rights reserved.
 
-// Package lookup3 implements Bob Jenkins' lookup3 hashlittle
-// non-cryptographic hash function
-// See
-// https://en.wikipedia.org/wiki/Jenkins_hash_function
-// http://burtleburtle.net/bob/c/lookup3.c
+/*
+Package lookup3 implements Bob Jenkins' lookup3 hashlittle
+non-cryptographic hash function.
 
+See:
+
+https://en.wikipedia.org/wiki/Jenkins_hash_function
+
+http://burtleburtle.net/bob/c/lookup3.c
+
+While this package uses the Go standard library hash package interface
+hashlittle calls cannot be chained, i.e. all the bytes of the key need to be
+written to the hash object in a single call to Write(), as the hash is
+dependent on the key length. Making multiple calls to Write() would not
+yield the same result, and for this reason throws an error
+
+This code is hereby placed in the public domain
+*/
 package lookup3
 
 import (
@@ -17,10 +28,11 @@ type (
 	sum32  uint32
 )
 
-// Hashlittle returns a new hash.Hash
-// to calculate the 32-bit lookup3 hashlittle 
-// Its Sum method will lay the value out in big-endian byte order.
-// and Sum32 will return the 32-bit unsigned value
+// Hashlittle returns a new hash.Hash32
+// to calculate the 32-bit lookup3 hashlittle
+//
+// Its Sum() method will lay the value out in big-endian byte order.
+// and Sum32() will return the 32-bit unsigned value
 func HashLittle() hash.Hash32 {
 	var s sum32 = 0
 	return &s
@@ -29,11 +41,6 @@ func (s *sum32) Reset()  { *s = 0 }
 
 func (s *sum32) Sum32() uint32  { return uint32(*s) }
 
-// While this package uses the Go standard library hash package interface
-// hashlittle calls cannot be chained, i.e. all the bytes of the key need to be
-// written to the hash object in a single call to Write(), as the hash is
-// dependent on the key length. Making multiple calls to Write() would not
-// yield the same result, and for this reason throws an error
 type Error string
 func (e Error) Error() string {
 	return string(e)
